@@ -21,5 +21,12 @@ pipeline {
                 sh 'docker push $IMAGE'
             }
         }
+        stage('Start Deploy Pipeline') {
+            steps {
+                build job: 'deploy_order_ms_eks', parameters: [
+                    string(name: 'IMAGE', value: "${IMAGE}")
+                ]
+            }
+        }
     }
 }
