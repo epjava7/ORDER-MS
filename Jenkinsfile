@@ -19,12 +19,14 @@ pipeline {
 
         stage('Docker Login and Push') {
             steps {
-                sh 'echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin'
-                sh 'docker push $IMAGE'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
+                    sh 'echo $DOCKERHUB_PSW | docker login -u $DOCKERHUB_USR --password-stdin'
+                    sh 'docker push $IMAGE'
+                }
             }
         }
-        
-        stage('Start Deploy Pipeline') {
+
+        stage('Invoke Deploy Pipeline') {
             steps {
                 build job: 'deploy_order_ms_eks', parameters: [
                     string(name: 'IMAGE', value: "${IMAGE}")
